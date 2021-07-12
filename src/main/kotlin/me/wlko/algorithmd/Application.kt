@@ -6,8 +6,8 @@ import io.ktor.server.jetty.*
 import me.wlko.algorithmd.plugins.*
 
 fun Application.module() {
-    configureRouting()
     configureSecurity()
+    configureRouting()
     configureHTTP()
     configureMonitoring()
     configureSerialization()
