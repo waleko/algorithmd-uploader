@@ -4,6 +4,7 @@ val logback_version: String by project
 val appengine_version: String by project
 val appengine_plugin_version: String by project
 val gcp_project_id: String by project
+val gce_logback_version: String by project
 
 
 plugins {
@@ -39,6 +40,7 @@ dependencies {
     implementation("io.ktor:ktor-server-host-common:$ktor_version")
     implementation("io.ktor:ktor-gson:$ktor_version")
     implementation("io.ktor:ktor-server-jetty:$ktor_version")
+    implementation("com.google.cloud:google-cloud-logging-logback:$gce_logback_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
 }
