@@ -14,9 +14,10 @@ import io.ktor.gson.*
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.request.*
-import kotlin.test.*
 import io.ktor.server.testing.*
 import me.wlko.algorithmd.plugins.*
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
 class ApplicationTest {
     @Test
