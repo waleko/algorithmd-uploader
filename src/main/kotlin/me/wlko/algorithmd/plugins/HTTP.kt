@@ -1,10 +1,8 @@
 package me.wlko.algorithmd.plugins
 
-import io.ktor.http.*
 import io.ktor.application.*
 import io.ktor.features.*
-import io.ktor.response.*
-import io.ktor.request.*
+import io.ktor.http.*
 
 fun Application.configureHTTP() {
     install(CORS) {

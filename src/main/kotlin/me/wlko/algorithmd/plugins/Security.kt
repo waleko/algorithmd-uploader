@@ -1,14 +1,9 @@
 package me.wlko.algorithmd.plugins
 
 import com.auth0.jwk.JwkProviderBuilder
-import io.ktor.auth.*
-import io.ktor.util.*
-import io.ktor.auth.jwt.*
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
+import io.ktor.auth.*
+import io.ktor.auth.jwt.*
 import java.util.concurrent.TimeUnit
 
 fun Application.configureSecurity() {

@@ -5,5 +5,5 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 suspend fun DatabaseReference.setValueSuspend(obj: Any): Unit = suspendCoroutine { cont ->
-        setValue(obj) { _, _ -> cont.resume(Unit) }
+    setValue(obj) { _, _ -> cont.resume(Unit) }
 }

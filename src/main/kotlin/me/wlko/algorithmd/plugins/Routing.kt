@@ -2,13 +2,13 @@ package me.wlko.algorithmd.plugins
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import io.ktor.routing.*
-import io.ktor.http.*
-import io.ktor.features.*
 import io.ktor.application.*
 import io.ktor.auth.*
+import io.ktor.features.*
+import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
+import io.ktor.routing.*
 import me.wlko.algorithmd.utils.setValueSuspend
 import java.util.*
 
@@ -21,7 +21,7 @@ fun Application.configureRouting() {
         }
         route("v1") {
             get("health") {
-                call.respondText {"OK"}
+                call.respondText { "OK" }
             }
             authenticate {
                 post("convertToken") {
