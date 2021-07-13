@@ -23,9 +23,9 @@ class ApplicationTest {
     @Test
     fun testRoot() {
         withTestApplication({ configureRouting() }) {
-            handleRequest(HttpMethod.Get, "/").apply {
+            handleRequest(HttpMethod.Get, "/v1/health").apply {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("Hello World!", response.content)
+                assertEquals("OK", response.content)
             }
         }
     }

@@ -31,6 +31,6 @@ fun Application.configureSecurity() {
 
 }
 
-fun ApplicationCall.subject(): String {
+fun ApplicationCall.jwtSubject(): String {
     return (authentication.principal as JWTPrincipal).payload.subject
 }

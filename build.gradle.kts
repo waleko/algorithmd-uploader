@@ -26,7 +26,7 @@ appengine {
 group = "me.wlko.algorithmd"
 version = "0.0.1"
 application {
-    mainClass.set("me.wlko.algorithmd.ApplicationKt")
+    mainClass.set("io.ktor.server.jetty.EngineMain")
 }
 
 repositories {
@@ -42,5 +42,6 @@ dependencies {
     implementation("io.ktor:ktor-server-jetty:$ktor_version")
     implementation("com.google.cloud:google-cloud-logging-logback:$gce_logback_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("com.google.firebase:firebase-admin:8.0.0")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
 }
