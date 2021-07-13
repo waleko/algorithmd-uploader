@@ -29,6 +29,8 @@ fun Application.configureRouting() {
                     call.respond(mapOf("token" to firebaseToken))
                 }
                 post("upload") {
+                    val subject = call.jwtSubject()
+
                     val newCodeRecord = call.receive<NewCodeRecord>()
                     newCodeRecord.run {
                         if (title.isEmpty() || title.length > 100)
@@ -45,11 +47,12 @@ fun Application.configureRouting() {
                     val uuid = UUID.randomUUID().toString()
                     val codeRecord = CodeRecord(newCodeRecord, uuid)
                     val fullCodeRecord = FullCodeRecord(newCodeRecord.full_content, codeRecord)
-                    call.respond(mapOf("uid" to uuid))
 
                     val db = FirebaseDatabase.getInstance()
                     db.getReference("/records/${uuid}").setValueAsync(fullCodeRecord)
-                    db.getReference("/users/${subject}/records").push().setValueAsync(codeRecord)
+                    db.getReference("/users/${subject}/records/${uuid}").setValueAsync(codeRecord)
+
+                    call.respond(mapOf("uid" to uuid))
                 }
             }
         }
