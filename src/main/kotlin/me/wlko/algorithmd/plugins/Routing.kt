@@ -9,6 +9,7 @@ import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.request.*
 import io.ktor.response.*
+import me.wlko.algorithmd.utils.setValueSuspend
 import java.util.*
 
 fun Application.configureRouting() {
@@ -49,8 +50,8 @@ fun Application.configureRouting() {
                     val fullCodeRecord = FullCodeRecord(newCodeRecord.full_content, codeRecord)
 
                     val db = FirebaseDatabase.getInstance()
-                    db.getReference("/records/${uuid}").setValueAsync(fullCodeRecord)
-                    db.getReference("/users/${subject}/records/${uuid}").setValueAsync(codeRecord)
+                    db.getReference("/records/${uuid}").setValueSuspend(fullCodeRecord)
+                    db.getReference("/users/${subject}/records/${uuid}").setValueSuspend(codeRecord)
 
                     call.respond(mapOf("uid" to uuid))
                 }
