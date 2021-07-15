@@ -9,6 +9,8 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import me.wlko.algorithmd.utils.setValueSuspend
 import java.util.*
 
@@ -64,7 +66,9 @@ fun Application.configureRouting() {
             exception<AuthorizationException> { cause ->
                 call.respond(HttpStatusCode.Forbidden)
             }
-
+            exception<SerializationException> { cause ->
+                call.respond(HttpStatusCode.BadRequest)
+            }
         }
     }
 }
@@ -72,6 +76,7 @@ fun Application.configureRouting() {
 class AuthenticationException : RuntimeException()
 class AuthorizationException : RuntimeException()
 
+@Serializable
 data class NewCodeRecord(
     val title: String,
     val language: String,
@@ -80,6 +85,7 @@ data class NewCodeRecord(
     val full_content: String
 )
 
+@Serializable
 data class CodeRecord(
     val uid: String,
     val title: String,
@@ -88,19 +94,20 @@ data class CodeRecord(
     val tagItems: List<String>,
     val filename: String
 ) {
-    constructor(newCodeRecord: NewCodeRecord, uid: String, preview_lines: Int = 10) : this(
+    constructor(newCodeRecord: NewCodeRecord, uid: String, previewLines: Int = 10) : this(
         uid,
         newCodeRecord.title,
         newCodeRecord.language,
         newCodeRecord.full_content
             .split('\n')
-            .take(10)
+            .take(previewLines)
             .joinToString("\n"),
         newCodeRecord.tagItems,
         newCodeRecord.filename
     )
 }
 
+@Serializable
 data class FullCodeRecord(
     val full_content: String,
     val info: CodeRecord

@@ -12,6 +12,7 @@ plugins {
     kotlin("jvm") version "1.5.20"
     war
     id("com.google.cloud.tools.appengine") version "2.2.0"
+    kotlin("plugin.serialization") version "1.4.21"
 }
 
 appengine {
@@ -38,7 +39,7 @@ dependencies {
     implementation("io.ktor:ktor-auth:$ktor_version")
     implementation("io.ktor:ktor-auth-jwt:$ktor_version")
     implementation("io.ktor:ktor-server-host-common:$ktor_version")
-    implementation("io.ktor:ktor-gson:$ktor_version")
+    implementation("io.ktor:ktor-serialization:$ktor_version")
     implementation("io.ktor:ktor-server-jetty:$ktor_version")
     implementation("com.google.cloud:google-cloud-logging-logback:$gce_logback_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")

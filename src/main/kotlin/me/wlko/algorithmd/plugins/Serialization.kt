@@ -2,19 +2,10 @@ package me.wlko.algorithmd.plugins
 
 import io.ktor.application.*
 import io.ktor.features.*
-import io.ktor.gson.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.serialization.*
 
 fun Application.configureSerialization() {
     install(ContentNegotiation) {
-        gson {
-        }
-    }
-
-    routing {
-        get("/json/gson") {
-            call.respond(mapOf("hello" to "world"))
-        }
+        json()
     }
 }
