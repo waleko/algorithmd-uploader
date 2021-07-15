@@ -22,19 +22,34 @@ fun Application.configureRouting() {
             call.respondText("Welcome to algorithmd API endpoint")
         }
         route("v1") {
+            /**
+             * Simple health check
+             */
             get("health") {
                 call.respondText { "OK" }
             }
+
             authenticate {
+                /**
+                 * Generates a custom firebase token for an authorized auth0 client
+                 */
                 post("convertToken") {
                     val subject = call.jwtSubject()
                     val firebaseToken = FirebaseAuth.getInstance().createCustomToken(subject)
                     call.respond(mapOf("token" to firebaseToken))
                 }
+
+                /**
+                 * Uploads code to realtime database for an authorized auth0 client
+                 *
+                 * TODO: implement per-user quota check
+                 */
                 post("upload") {
                     val subject = call.jwtSubject()
 
+                    // receive body
                     val newCodeRecord = call.receive<NewCodeRecord>()
+                    // validate received data
                     newCodeRecord.run {
                         if (title.isEmpty() || title.length > 100)
                             throw BadRequestException("Title invalid")
@@ -47,14 +62,19 @@ fun Application.configureRouting() {
                         if (full_content.isEmpty())
                             throw BadRequestException("No content")
                     }
+                    // generate an uuid for code
                     val uuid = UUID.randomUUID().toString()
+                    // generate code record (with preview content only)
                     val codeRecord = CodeRecord(newCodeRecord, uuid)
+                    // generate full code record (containing full content)
                     val fullCodeRecord = FullCodeRecord(newCodeRecord.full_content, codeRecord)
 
+                    // save to realtime database
                     val db = FirebaseDatabase.getInstance()
                     db.getReference("/records/${uuid}").setValueSuspend(fullCodeRecord)
                     db.getReference("/users/${subject}/records/${uuid}").setValueSuspend(codeRecord)
 
+                    // return uuid of code
                     call.respond(mapOf("uid" to uuid))
                 }
             }
@@ -76,6 +96,9 @@ fun Application.configureRouting() {
 class AuthenticationException : RuntimeException()
 class AuthorizationException : RuntimeException()
 
+/**
+ * Data model representing client's request to save a code fragment
+ */
 @Serializable
 data class NewCodeRecord(
     val title: String,
@@ -85,6 +108,10 @@ data class NewCodeRecord(
     val full_content: String
 )
 
+/**
+ * Data model representing code record with preview content
+ * limited to 10 lines and 100 columns (for faster list load times)
+ */
 @Serializable
 data class CodeRecord(
     val uid: String,
@@ -94,19 +121,28 @@ data class CodeRecord(
     val tagItems: List<String>,
     val filename: String
 ) {
-    constructor(newCodeRecord: NewCodeRecord, uid: String, previewLines: Int = 10) : this(
+    constructor(newCodeRecord: NewCodeRecord, uid: String, previewLines: Int = 10, previewColumns: Int = 100) : this(
         uid,
         newCodeRecord.title,
         newCodeRecord.language,
         newCodeRecord.full_content
             .split('\n')
-            .take(previewLines)
-            .joinToString("\n"),
+            .take(previewLines) // limit lines
+            .joinToString("\n") {
+                // limit columns
+                if (it.length < previewColumns)
+                    it
+                else
+                    "${it.take(previewColumns)}..."
+            },
         newCodeRecord.tagItems,
         newCodeRecord.filename
     )
 }
 
+/**
+ * Data model representing code record with full content
+ */
 @Serializable
 data class FullCodeRecord(
     val full_content: String,
