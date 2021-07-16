@@ -11,6 +11,7 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
+import me.wlko.algorithmd.utils.readSingle
 import me.wlko.algorithmd.utils.setValueSuspend
 import java.util.*
 
@@ -29,6 +30,35 @@ fun Application.configureRouting() {
                 call.respondText { "OK" }
             }
 
+            get("download/{uid}") {
+                // get code uid
+                val uid: String = call.parameters["uid"] ?: throw BadRequestException("No file uid supplied")
+
+                // get full code record
+                val db = FirebaseDatabase.getInstance()
+                val fullCodeRecord: FullCodeRecord? = db.getReference("/records/${uid}").readSingle()
+
+                // if no reference is present, return null
+                if (fullCodeRecord == null) {
+                    call.respond(HttpStatusCode.NotFound)
+                    return@get
+                }
+
+                // send code record as file
+                call.response.header(
+                    HttpHeaders.ContentDisposition,
+                    ContentDisposition.Attachment.withParameter(
+                        ContentDisposition.Parameters.FileName,
+                        fullCodeRecord.info.filename
+                    )
+                        .toString()
+                )
+                call.respondText { fullCodeRecord.full_content }
+            }
+
+            /**
+             * Auth0 JWT Authentication
+             */
             authenticate {
                 /**
                  * Generates a custom firebase token for an authorized auth0 client
@@ -72,7 +102,7 @@ fun Application.configureRouting() {
                     // save to realtime database
                     val db = FirebaseDatabase.getInstance()
                     db.getReference("/records/${uuid}").setValueSuspend(fullCodeRecord)
-                    db.getReference("/users/${subject}/records/${uuid}").setValueSuspend(codeRecord)
+                    db.getReference("/users/${subject}/records").push().setValueSuspend(codeRecord)
 
                     // return uuid of code
                     call.respond(mapOf("uid" to uuid))
