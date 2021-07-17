@@ -9,8 +9,12 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
+import me.wlko.algorithmd.CodeRecord
+import me.wlko.algorithmd.FullCodeRecord
+import me.wlko.algorithmd.NewCodeRecord
+import me.wlko.algorithmd.utils.decrementQuota
+import me.wlko.algorithmd.utils.incrementAndGetUploadQuota
 import me.wlko.algorithmd.utils.readSingle
 import me.wlko.algorithmd.utils.setValueSuspend
 import java.util.*
@@ -71,27 +75,32 @@ fun Application.configureRouting() {
 
                 /**
                  * Uploads code to realtime database for an authorized auth0 client
-                 *
-                 * TODO: implement per-user quota check
                  */
                 post("upload") {
                     val subject = call.jwtSubject()
 
-                    // receive body
+                    // Receive body & validation
+
                     val newCodeRecord = call.receive<NewCodeRecord>()
-                    // validate received data
-                    newCodeRecord.run {
-                        if (title.isEmpty() || title.length > 100)
-                            throw BadRequestException("Title invalid")
-                        if (language.isEmpty())
-                            throw BadRequestException("Language invalid")
-                        if (filename.isEmpty() || filename.length > 100)
-                            throw BadRequestException("Filename invalid")
-                        if (tagItems.size > 100)
-                            throw BadRequestException("Tag items invalid")
-                        if (full_content.isEmpty())
-                            throw BadRequestException("No content")
+                    // simple body validation
+                    newCodeRecord.runCatching { simpleValidate() }.onFailure {
+                        throw BadRequestException(it.message.orEmpty())
                     }
+
+                    // get quota
+                    val db = FirebaseDatabase.getInstance()
+                    // increment current_amount for quota (thereby reserving space it)
+                    // get quota for further validation
+                    val quota = incrementAndGetUploadQuota(db, subject)
+                    // validate against quota
+                    newCodeRecord.runCatching { quotaValidate(quota) }.onFailure {
+                        decrementQuota(db, subject)
+                        throw BadRequestException(it.message.orEmpty())
+
+                    }
+
+                    // Saving code record
+
                     // generate an uuid for code
                     val uuid = UUID.randomUUID().toString()
                     // generate code record (with preview content only)
@@ -100,7 +109,6 @@ fun Application.configureRouting() {
                     val fullCodeRecord = FullCodeRecord(newCodeRecord.full_content, codeRecord)
 
                     // save to realtime database
-                    val db = FirebaseDatabase.getInstance()
                     db.getReference("/records/${uuid}").setValueSuspend(fullCodeRecord)
                     db.getReference("/users/${subject}/records").push().setValueSuspend(codeRecord)
 
@@ -125,56 +133,3 @@ fun Application.configureRouting() {
 
 class AuthenticationException : RuntimeException()
 class AuthorizationException : RuntimeException()
-
-/**
- * Data model representing client's request to save a code fragment
- */
-@Serializable
-data class NewCodeRecord(
-    val title: String,
-    val language: String,
-    val tagItems: List<String>,
-    val filename: String,
-    val full_content: String
-)
-
-/**
- * Data model representing code record with preview content
- * limited to 10 lines and 100 columns (for faster list load times)
- */
-@Serializable
-data class CodeRecord(
-    val uid: String,
-    val title: String,
-    val language: String,
-    val preview_content: String,
-    val tagItems: List<String>,
-    val filename: String
-) {
-    constructor(newCodeRecord: NewCodeRecord, uid: String, previewLines: Int = 10, previewColumns: Int = 100) : this(
-        uid,
-        newCodeRecord.title,
-        newCodeRecord.language,
-        newCodeRecord.full_content
-            .split('\n')
-            .take(previewLines) // limit lines
-            .joinToString("\n") {
-                // limit columns
-                if (it.length < previewColumns)
-                    it
-                else
-                    "${it.take(previewColumns)}..."
-            },
-        newCodeRecord.tagItems,
-        newCodeRecord.filename
-    )
-}
-
-/**
- * Data model representing code record with full content
- */
-@Serializable
-data class FullCodeRecord(
-    val full_content: String,
-    val info: CodeRecord
-)
