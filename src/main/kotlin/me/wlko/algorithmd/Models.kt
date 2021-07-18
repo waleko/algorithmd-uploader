@@ -30,7 +30,7 @@ data class NewCodeRecord(
     }
 
     fun quotaValidate(quota: UploadQuota) {
-        if (quota.cur_amount >= quota.max_amount)
+        if (quota.cur_amount > quota.max_amount)
             error("Upload quota exceeded")
         if (1L * full_content.length * Char.SIZE_BYTES >= quota.max_upload_size_KB * 1024)
             error("Exceeded maximum upload size (${quota.max_upload_size_KB}KB)")
