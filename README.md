@@ -1,15 +1,18 @@
 <a href="https://algorithmd.wlko.me">
-  <img align="left" width="75px" src="https://algorithmd.wlko.me/assets/img/algorithmd.png">
+  <img align="left" height="80px" src="https://algorithmd.wlko.me/assets/img/algorithmd.png">
 </a>
-<h1 align="left">
+<h1 style="display: inline;">
   AlgorithmD Uploader
-  <img alt="Teamcity build status" src="https://waleko.teamcity.com/app/rest/builds/buildType:(AlgorithmdUploader_Build)/statusIcon"/>
-  <a href="https://api.algorithmd.wlko.me">
-    <img alt="Uptime Robot ratio (7 days)"
-      src="https://img.shields.io/uptimerobot/ratio/7/m788737569-9159333ab68377023fe81a9a">
-  </a>
-  <a href="./LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/waleko/algorithmd-uploader"></a>
+
 </h1>
+
+<p>Website for sharing code snippets</p>
+
+[![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m788737569-9159333ab68377023fe81a9a?logo=googlecloud&logoColor=white&style=flat)](https://api.algorithmd.wlko.me)
+[![Teamcity build](https://waleko.teamcity.com/app/rest/builds/buildType:id:AlgorithmdUploader_Build/statusIcon.svg)](https://waleko.teamcity.com)
+[![GitHub top language](https://img.shields.io/github/languages/top/waleko/algorithmd-uploader?logo=github&style=flat)](https://github.com/waleko/algorithmd)
+[![license](https://img.shields.io/github/license/waleko/algorithmd-uploader?style=flat)](./LICENSE)
+
 
 ## What is AlgorithmD
 
