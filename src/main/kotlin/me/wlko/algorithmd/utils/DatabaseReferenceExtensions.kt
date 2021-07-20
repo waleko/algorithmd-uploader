@@ -23,6 +23,14 @@ suspend inline fun <reified T : Any> DatabaseReference.readSingle(): T? = suspen
 }
 
 /**
+ * Reads single value of [DatabaseReference] as list of [T]. If null, returns empty list.
+ */
+suspend inline fun <reified T : Any> DatabaseReference.readList(): List<T> {
+    val map = this.readSingle<Map<*, *>>()
+    return map.orEmpty().values.filterNotNull().map { parseObjectNotNull(it, T::class) }
+}
+
+/**
  * Simple [Transaction.Handler] for [runTransactionSuspend].
  *
  * Returns final [DataSnapshot] to [Continuation].

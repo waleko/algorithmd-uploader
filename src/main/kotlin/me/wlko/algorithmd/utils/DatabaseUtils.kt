@@ -7,6 +7,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.reflect.KClass
 
 /**
@@ -22,7 +23,7 @@ class SuspendCoroutineSingleValueListener<T : Any>(
     }
 
     override fun onCancelled(error: DatabaseError?) {
-        println(error)
+        continuation.resumeWithException(error?.toException() ?: Exception("$this could not single-read value"))
     }
 
 }
@@ -30,18 +31,28 @@ class SuspendCoroutineSingleValueListener<T : Any>(
 /**
  * Get value of [DataSnapshot] and deserialize it using [Gson].
  */
-internal fun <T : Any> DataSnapshot.getValue(clazz: KClass<T>): T = parseMap(value as Map<*, *>, clazz)
+internal fun <T : Any> DataSnapshot.getValue(clazz: KClass<T>): T? = parseObject(value, clazz)
 
 /**
  * Get value of [MutableData] and deserialize it using [Gson].
  */
-internal fun <T : Any> MutableData.getValue(clazz: KClass<T>): T = parseMap(value as Map<*, *>, clazz)
+internal fun <T : Any> MutableData.getValue(clazz: KClass<T>): T? = parseObject(value, clazz)
 
 /**
- * Recursively deserialize [Map] as [T] using [Gson]
+ * Recursively deserialize [obj] as nullable [T] using [Gson].
  */
-private fun <T : Any> parseMap(map: Map<*, *>, clazz: KClass<T>): T {
+fun <T : Any> parseObject(obj: Any?, clazz: KClass<T>): T? {
+    return if (obj != null)
+        parseObjectNotNull(obj, clazz)
+    else
+        null
+}
+
+/**
+ * Recursively deserialize [obj] as non-nullable [T] using [Gson]
+ */
+fun <T : Any> parseObjectNotNull(obj: Any, clazz: KClass<T>): T {
     // TODO: maybe make this cleaner? e.g. a self-written tree walk
-    val jsonElement = Gson().toJsonTree(map)
+    val jsonElement = Gson().toJsonTree(obj)
     return Gson().fromJson(jsonElement, clazz.java)
 }

@@ -19,7 +19,7 @@ data class NewCodeRecord(
     fun simpleValidate() {
         if (title.isEmpty() || title.length > 100)
             error("Title invalid")
-        if (language.isEmpty())
+        if (language.isEmpty() || language.length > 100)
             error("Language invalid")
         if (filename.isEmpty() || filename.length > 100)
             error("Filename invalid")

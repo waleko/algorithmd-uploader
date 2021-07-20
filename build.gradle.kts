@@ -30,6 +30,15 @@ application {
     mainClass.set("io.ktor.server.jetty.EngineMain")
 }
 
+tasks.test {
+    useJUnitPlatform()
+    environment(
+        "GCLOUD_PROJECT" to "test",
+        "FIREBASE_DATABASE_EMULATOR_HOST" to "localhost:9000",
+        "FIREBASE_AUTH_EMULATOR_HOST" to "localhost:9099"
+    )
+}
+
 repositories {
     mavenCentral()
 }
@@ -44,5 +53,6 @@ dependencies {
     implementation("com.google.cloud:google-cloud-logging-logback:$gce_logback_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("com.google.firebase:firebase-admin:8.0.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
 }

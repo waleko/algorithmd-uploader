@@ -17,11 +17,8 @@ suspend fun incrementAndGetUploadQuota(db: FirebaseDatabase, uid: String): Uploa
     val newQuotaSnapshot = db.getReference("/limits/customQuotas/${uid}").runTransactionSuspend { currentData ->
         // get current quota value from the database
         val currentQuotaValue: UploadQuota = runBlocking {
-            // check custom quotas set to user
-            return@runBlocking if (currentData?.value != null)
-                currentData.getValue(UploadQuota::class)
-            else
-                defaultQuota
+            // check custom quotas set to user or return default if custom is not yet set
+            return@runBlocking currentData?.getValue(UploadQuota::class) ?: defaultQuota
         }
         // increment current amount for quota
         val newQuotaValue = currentQuotaValue.run { copy(cur_amount = cur_amount + 1) }
