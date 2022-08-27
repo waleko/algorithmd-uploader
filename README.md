@@ -29,7 +29,7 @@ The main goal of this project is educational, as countless other alternatives ex
 * Backend: [waleko/algorithmd-uploader](https://github.com/waleko/algorithmd-uploader). Written in Kotlin using Ktor. Hosted on Google App Engine.
 
 ## Contacts
-Questions and suggestions are welcome! Email me [a.kovrigin0@gmail.com](mailto:a.kovrigin0@gmail.com) or telegram me [@waleko](https://t.me/waleko).
+Questions and suggestions are welcome! Email me [inbox@alexkovrigin.me](mailto:inbox@alexkovrigin.me) or telegram me [@waleko](https://t.me/waleko).
 
 ## License
 AlgorithmD Uploader is [Apache 2](./LICENSE) licensed.
