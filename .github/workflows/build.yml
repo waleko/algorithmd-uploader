@@ -22,8 +22,6 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
       - uses: actions/setup-node@v1
-        with:
-          node-version: '12'
       - run: npm install -g firebase-tools
       - run: firebase emulators:exec \"gradlew build\"
       - name: Deploy with Gradle
